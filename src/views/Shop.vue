@@ -1,0 +1,203 @@
+<script setup lang="ts">
+import { useRoute, useRouter } from "vue-router";
+import { ref, onMounted, watch } from "vue";
+import type { Product } from "@/types/Product";
+import { useAuthStore } from "@/stores/user";
+import Shop from "@/api/Shop";
+//
+interface Pagination {
+  page: number;
+  per_page: number;
+  totalItems: number;
+}
+interface Headers {
+  key: string;
+  value?: string;
+  align: "start" | "end" | "center";
+  sortable: boolean;
+  title: string;
+}
+//
+const route = useRoute();
+const router = useRouter();
+const search = ref<string>("");
+const products = ref<Product[]>([]);
+const store = useAuthStore();
+
+const headers: Headers[] = [
+  {
+    align: "start",
+    key: "id",
+    sortable: false,
+    title: "Id",
+  },
+  {
+    align: "start",
+    key: "name",
+    sortable: false,
+    title: "Name",
+  },
+  {
+    align: "start",
+    key: "description",
+    sortable: false,
+    title: "Description",
+  },
+  {
+    align: "start",
+    key: "price",
+    sortable: false,
+    title: "Price",
+  },
+  {
+    align: "start",
+    key: "weight",
+    sortable: false,
+    title: "Weight",
+  },
+  {
+    align: "start",
+    key: "width",
+    sortable: false,
+    title: "Width",
+  },
+  {
+    align: "start",
+    key: "height",
+    sortable: false,
+    title: "Height",
+  },
+  {
+    align: "center",
+    key: "actions",
+    sortable: false,
+    title: "Actions",
+  },
+];
+
+let loading = ref<boolean>(false);
+let pagination = ref<Pagination>({
+  page: 1,
+  per_page: 10,
+  totalItems: 0,
+});
+
+// functions
+async function getData() {
+  try {
+    loading.value = true;
+    const { data } = await Shop.getProducts(
+      pagination.value.page,
+      pagination.value.per_page,
+      search.value
+    );
+    pagination.value.totalItems = data.meta.total;
+    products.value = [...data.data];
+  } catch (err: any) {
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+}
+onMounted(() => {
+  if (route.query.page && route.query.per_page) {
+    pagination.value.page = parseInt(route.query.page as string);
+    pagination.value.per_page = parseInt(route.query.per_page as string);
+  } else {
+    router.replace({
+      query: {
+        page: pagination.value.page,
+        per_page: pagination.value.per_page,
+      },
+    });
+  }
+});
+
+// watch
+watch(
+  () => [pagination.value.page, pagination.value.per_page],
+  ([newPage, newPerPage]) => {
+    router.replace({
+      query: {
+        ...route.query,
+        page: newPage,
+        per_page: newPerPage,
+      },
+    });
+  }
+);
+watch(
+  () => search.value,
+  (newVal) => {
+    if (newVal) {
+      router.replace({
+        query: {
+          page: route.query.page,
+          per_page: route.query.per_page,
+          search: newVal,
+        },
+      });
+    } else {
+      router.replace({
+        query: {
+          page: route.query.page,
+          per_page: route.query.per_page,
+        },
+      });
+    }
+  }
+);
+</script>
+
+<template>
+  <main>
+    <v-toolbar dark prominent class="bg-blue-accent-4">
+      <v-toolbar-title
+        ><v-icon icon="md:shopping_cart" />Online Store App</v-toolbar-title
+      >
+
+      <v-spacer />
+      <v-btn icon @click="store.clearUser()">
+        <v-icon>mdi-logout</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <v-card flat title="Shop">
+      <template v-slot:text>
+        <v-text-field
+          v-model="search"
+          density="compact"
+          placeholder="Search..."
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          flat
+          hide-details
+        />
+      </template>
+
+      <v-data-table-server
+        :items="products"
+        v-model:search="search"
+        v-model:page="pagination.page"
+        v-model:items-per-page="pagination.per_page"
+        :items-length="pagination.totalItems"
+        :headers="headers"
+        :loading="loading"
+        item-value="id"
+        @update:options="getData"
+        prev-icon="md:arrow_back_ios"
+        next-icon="md:arrow_forward_ios"
+        loading-text="Loading products..."
+        last-icon="md:last_page"
+        first-icon="md:first_page"
+        no-data-text="No products available"
+      >
+        <template v-slot:item.price="{ item }"> ${{ item.price }} </template>
+        <template v-slot:item.actions>
+          <v-icon class="v-icon--clickable" size="20" color="orange">
+            md:shopping_cart
+          </v-icon>
+        </template>
+      </v-data-table-server>
+    </v-card>
+  </main>
+</template>
