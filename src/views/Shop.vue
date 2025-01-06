@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 import { ref, onMounted, watch } from "vue";
-import type { Product } from "@/types/Product";
+import type { Product, Category } from "@/types/Product";
 import { useAuthStore } from "@/stores/user";
 import Shop from "@/api/Shop";
 //
@@ -23,7 +23,6 @@ const router = useRouter();
 const search = ref<string>("");
 const products = ref<Product[]>([]);
 const store = useAuthStore();
-
 const headers: Headers[] = [
   {
     align: "start",
@@ -76,6 +75,9 @@ const headers: Headers[] = [
 ];
 
 let loading = ref<boolean>(false);
+let loadingCategory = ref<boolean>(false);
+let categories = ref<Category[]>([]);
+let selectedCategory = ref<string>("");
 let pagination = ref<Pagination>({
   page: 1,
   per_page: 10,
@@ -99,6 +101,19 @@ async function getData() {
     loading.value = false;
   }
 }
+async function getCategories() {
+  try {
+    loadingCategory.value = true;
+    const { data } = await Shop.getCategories();
+    categories.value = [...data.data];
+  } catch (err: any) {
+    console.error(err);
+  } finally {
+    loadingCategory.value = false;
+  }
+}
+
+// mounted
 onMounted(() => {
   if (route.query.page && route.query.per_page) {
     pagination.value.page = parseInt(route.query.page as string);
@@ -111,6 +126,7 @@ onMounted(() => {
       },
     });
   }
+  getCategories();
 });
 
 // watch
@@ -163,15 +179,27 @@ watch(
     </v-toolbar>
     <v-card flat title="Shop">
       <template v-slot:text>
-        <v-text-field
-          v-model="search"
-          density="compact"
-          placeholder="Search..."
-          prepend-inner-icon="mdi-magnify"
-          variant="outlined"
-          flat
-          hide-details
-        />
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="search"
+              placeholder="Search..."
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              flat
+              hide-details
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-select
+              label="Categories"
+              v-model="selectedCategory"
+              :items="[...categories.map((category) => category.name)]"
+              variant="outlined"
+              placeholder="Select category"
+            />
+          </v-col>
+        </v-row>
       </template>
 
       <v-data-table-server

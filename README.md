@@ -28,6 +28,7 @@
 ## Funcionalidades
 - **Búsqueda de Productos**: Permite a los usuarios buscar productos utilizando un campo de texto.
 - **Gestión de Usuarios**: Funcionalidad para que los usuarios inicien y cierren sesión.
+- **Endpoint de Categorías**: Se utiliza un endpoint para obtener y gestionar las categorías de productos.
 
 ## Project Setup
 

@@ -15,6 +15,10 @@ class Shop {
       )
       .then((data) => data);
   }
+
+  async getCategories(): Promise<AxiosResponse> {
+    return http.get(`shop/categories`).then((data) => data);
+  }
 }
 
 const shop = new Shop();

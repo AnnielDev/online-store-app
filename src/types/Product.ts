@@ -40,3 +40,15 @@ export interface Image {
   updated_at: string;
   path: string;
 }
+
+export interface Category {
+  id: number;
+  uuid: string;
+  name: string;
+  slug: string;
+  description: string;
+  status: number;
+  image: string;
+  created_at: null;
+  updated_at: null;
+}
