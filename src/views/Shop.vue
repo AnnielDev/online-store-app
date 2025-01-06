@@ -3,7 +3,9 @@ import { useRoute, useRouter } from "vue-router";
 import { ref, onMounted, watch } from "vue";
 import type { Product, Category } from "@/types/Product";
 import { useAuthStore } from "@/stores/user";
+
 import Shop from "@/api/Shop";
+import Auth from "@/api/Auth";
 //
 interface Pagination {
   page: number;
@@ -50,9 +52,9 @@ const headers: Headers[] = [
   },
   {
     align: "start",
-    key: "weight",
+    key: "stock",
     sortable: false,
-    title: "Weight",
+    title: "Stock",
   },
   {
     align: "start",
@@ -76,6 +78,8 @@ const headers: Headers[] = [
 
 let loading = ref<boolean>(false);
 let loadingCategory = ref<boolean>(false);
+let snackbar = ref<boolean>(false);
+let existProduct = ref<boolean>(false);
 let categories = ref<Category[]>([]);
 let selectedCategory = ref<string>("");
 let pagination = ref<Pagination>({
@@ -110,6 +114,17 @@ async function getCategories() {
     console.error(err);
   } finally {
     loadingCategory.value = false;
+  }
+}
+
+async function addToCart(product_id: number, stock: number) {
+  try {
+    await Shop.addProductToCart({ product_id, stock });
+    snackbar.value = true;
+  } catch (err: any) {
+    if (!err.response.data.success) {
+      existProduct.value = true;
+    }
   }
 }
 
@@ -173,7 +188,15 @@ watch(
       >
 
       <v-spacer />
-      <v-btn icon @click="store.clearUser()">
+      <v-btn
+        icon
+        @click="
+          () => {
+            Auth.signOut();
+            store.clearUser();
+          }
+        "
+      >
         <v-icon>mdi-logout</v-icon>
       </v-btn>
     </v-toolbar>
@@ -220,12 +243,48 @@ watch(
         no-data-text="No products available"
       >
         <template v-slot:item.price="{ item }"> ${{ item.price }} </template>
-        <template v-slot:item.actions>
-          <v-icon class="v-icon--clickable" size="20" color="orange">
-            md:shopping_cart
-          </v-icon>
+        <template v-slot:item.actions="{ item }">
+          <v-btn flat icon @click="addToCart(item.id, item.stock)">
+            <v-icon class="v-icon--clickable" size="20" color="orange">
+              md:shopping_cart
+            </v-icon>
+          </v-btn>
         </template>
       </v-data-table-server>
     </v-card>
+    <v-snackbar v-model="snackbar" color="blue-accent-4">
+      The product was added to the cart
+      <template v-slot:actions>
+        <v-btn
+          color="white"
+          variant="text"
+          @click="
+            () => {
+              snackbar = false;
+            }
+          "
+        >
+          close
+        </v-btn>
+      </template>
+    </v-snackbar>
+
+    <v-snackbar v-model="existProduct" color="red-accent-4">
+      The product has been taken
+
+      <template v-slot:actions>
+        <v-btn
+          color="white"
+          variant="text"
+          @click="
+            () => {
+              existProduct = false;
+            }
+          "
+        >
+          close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </main>
 </template>

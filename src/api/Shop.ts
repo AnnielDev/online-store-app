@@ -1,6 +1,6 @@
 import { http } from "@/utils/http";
-import type { Product } from "@/types/Product";
 import type { AxiosResponse } from "axios";
+import { useAuthStore } from "@/stores/user";
 class Shop {
   async getProducts(
     page: number,
@@ -18,6 +18,21 @@ class Shop {
 
   async getCategories(): Promise<AxiosResponse> {
     return http.get(`shop/categories`).then((data) => data);
+  }
+  async addProductToCart(data: {
+    product_id: number;
+    stock: number;
+  }): Promise<AxiosResponse> {
+    const store = useAuthStore();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${store.user.token}`,
+    };
+    return http
+      .post(`carts`, data, {
+        headers,
+      })
+      .then((data) => data);
   }
 }
 

@@ -1,6 +1,6 @@
 import type { User } from "./User";
 export interface Product {
-  id?: number;
+  id: number;
   uuid?: string;
   name: string;
   resumen: string;

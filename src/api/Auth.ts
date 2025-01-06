@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 import type { AxiosResponse } from "axios";
 import type { User } from "@/types/User";
-
+import { useAuthStore } from "@/stores/user";
 class Auth {
   async signIn(data: {
     email: string;
@@ -11,6 +11,14 @@ class Auth {
   }
   async signUp(data: User): Promise<AxiosResponse> {
     return http.post("register", data).then((data) => data);
+  }
+  async signOut(): Promise<AxiosResponse> {
+    const store = useAuthStore();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${store.user.token}`,
+    };
+    return http.post("logout", {}, { headers }).then((data) => data);
   }
 }
 const auth = new Auth();
