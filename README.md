@@ -7,7 +7,7 @@
 - **src/**
   - **components/**: Componentes reutilizables de la aplicación.
   - **views/**: Vistas principales de la aplicación.
-  - **store/**: Gestión del estado global de la aplicación utilizando Vuex.
+  - **store/**: Gestión del estado global de la aplicación utilizando Pinia.
   - **router/**: Configuración de las rutas de la aplicación.
   - **assets/**: Recursos estáticos como imágenes y estilos.
   - **App.vue**: Componente raíz de la aplicación.
