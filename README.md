@@ -1,7 +1,7 @@
 # online-store-app
 
 ## Descripción
-"Online Store App" es una aplicación web desarrollada con Vue.js y Vuetify que permite a los usuarios buscar y comprar productos en línea. La aplicación incluye funcionalidades como búsqueda de productos, gestión de usuarios y un carrito de compras.
+"Online Store App" es una aplicación web desarrollada con Vue.js y Vuetify que permite a los usuarios buscar y comprar productos en línea. La aplicación incluye funcionalidades como búsqueda de productos, gestión de usuarios y agregar productos al carrito.
 
 ## Estructura del Proyecto
 - **src/**
