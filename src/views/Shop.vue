@@ -120,6 +120,7 @@ async function getCategories() {
 async function addToCart(product_id: number, stock: number) {
   try {
     await Shop.addProductToCart({ product_id, stock });
+    getData();
     snackbar.value = true;
   } catch (err: any) {
     if (!err.response.data.success) {
