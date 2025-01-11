@@ -2,6 +2,10 @@ import { http } from "@/utils/http";
 import type { AxiosResponse } from "axios";
 import { useAuthStore } from "@/stores/user";
 class Shop {
+  token: string;
+  constructor(token: string) {
+    this.token = token;
+  }
   async getProducts(
     page: number,
     per_page: number,
@@ -23,10 +27,9 @@ class Shop {
     product_id: number;
     stock: number;
   }): Promise<AxiosResponse> {
-    const store = useAuthStore();
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${store.user.token}`,
+      Authorization: `Bearer ${this.token}`,
     };
     return http
       .post(`carts`, data, {
@@ -35,6 +38,6 @@ class Shop {
       .then((data) => data);
   }
 }
-
-const shop = new Shop();
+const store = useAuthStore();
+const shop = new Shop(store.user.token);
 export default shop;
