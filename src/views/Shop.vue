@@ -164,8 +164,7 @@ watch(
     if (newVal) {
       router.replace({
         query: {
-          page: route.query.page,
-          per_page: route.query.per_page,
+          ...route.query,
           search: newVal,
         },
       });
