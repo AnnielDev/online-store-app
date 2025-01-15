@@ -3,10 +3,6 @@ import type { AxiosResponse } from "axios";
 import type { User } from "@/types/User";
 import { useAuthStore } from "@/stores/user";
 class Auth {
-  token: string;
-  constructor(token: string) {
-    this.token = token;
-  }
   async signIn(data: {
     email: string;
     password: string;
@@ -17,13 +13,13 @@ class Auth {
     return http.post("register", data).then((data) => data);
   }
   async signOut(): Promise<AxiosResponse> {
+    const store = useAuthStore();
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${this.token}`,
+      Authorization: `Bearer ${store.user.token}`,
     };
     return http.post("logout", {}, { headers }).then((data) => data);
   }
 }
-const store = useAuthStore();
-const auth = new Auth(store.user.token);
+const auth = new Auth();
 export default auth;
