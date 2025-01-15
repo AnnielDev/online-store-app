@@ -51,6 +51,7 @@ function clearInputs(): void {
   user.value.email = "";
   user.value.name = "";
   user.value.password = "";
+  user.value.c_password = "";
 }
 
 function handleEmit(): void {
